@@ -1,0 +1,10 @@
+# Object files
+*.o
+
+# Fichiers temporaires
+*.swp
+*.aux
+*.log
+
+.DS_Store
+

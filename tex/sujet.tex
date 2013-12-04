@@ -1,0 +1,231 @@
+\documentclass[twoside, symmetric]{tufte-handout}
+% \documentclass{tufte-handout}
+\usepackage[francais]{babel}
+
+
+%% TWEAK : règle problème avec paquet SOUL
+\renewcommand{\allcapsspacing}[1]{{\addfontfeature{LetterSpace=20.0}#1}}
+\renewcommand{\smallcapsspacing}[1]{{\addfontfeature{LetterSpace=5.0}#1}}
+\renewcommand{\textsc}[1]{\smallcapsspacing{\textsmallcaps{#1}}}
+%%
+
+\setlength\parindent{0in}
+
+% \geometry{showframe}% for debugging purposes -- displays the margins
+\usepackage{amsmath, mathtools}
+
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\usepackage{tikz}
+
+\usepackage{xunicode}
+% \usepackage{xltxtra}
+\defaultfontfeatures{Mapping=tex-text}
+% converts LaTeX specials (``quotes'' --- dashes etc.) to unicode
+\setmainfont{Linux Libertine O}
+\setmathfont{Asana Math}
+
+% use Libertine for the letters
+\setmathfont[range=\mathit/{latin,Latin,num,Greek,greek}]{Linux Libertine O Italic}
+\setmathfont[range=\mathup/{latin,Latin,num,Greek,greek}]{Linux Libertine O}
+\setmathfont[range=\mathbfup/{latin,Latin,num,Greek,greek}]{Linux Libertine O Bold}
+\setmathfont[range={"221E}]{Linux Libertine O}% "0221E = \infty
+% etc. (list should be completed depending on needs)
+\setmonofont[Scale=0.8]{Monaco}
+
+\definecolor{MidnightBlue}{rgb}{0.15,0.30,0.55}
+
+\hypersetup{colorlinks, bookmarks, pdftitle={Schéma de Horner},
+linkcolor=MidnightBlue,citecolor=MidnightBlue,
+filecolor=black,urlcolor=MidnightBlue}
+
+% \addfontfeature{Language=French}
+
+\title{Schémas d'intégration}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle% this prints the handout title, author, and date
+
+\vspace{5mm} L'objectif de cet exercice est de prendre conscience des
+problématiques liées à l'intégration d'équations différentielles lors de
+simulations informatiques. Deux schémas intégrateurs classiques, Euler et
+Runge-Kutta, seront étudiés sur un problème de lancer balistique et sur un
+problème à $n$\;corps soumis à une interaction gravitationnelle.
+
+\section{Méthode d'Euler}
+
+Considérons l'équation différentielle du premier ordre suivante:
+\begin{equation}
+    \frac{dy}{dt} = f(t,y) \;\textrm{avec}\; y(t_0) = y_0
+    \label{eqn:o1}
+\end{equation}
+
+La méthode d'Euler propose, à partir d'un pas d'intégration $h$,  une méthode
+numérique d'approximation de la solution:
+
+\begin{equation}
+    y_{n+1} = y_n + h\cdot f(t,y_n)
+    \label{eqn:euler}
+\end{equation}
+
+\begin{marginfigure}
+%     \small
+    \centering
+    \begin{tikzpicture}[domain=-1.1:3.1]
+        \draw[very thin,color=gray, dashed] (-1.1,-0.1) grid (3.9,4.9);
+        \draw[->] (-1.2,0) -- (4.2,0) node[right] {};
+        \draw[->] (0,-0.2) -- (0,5.2) node[above] {};
+        \draw[OliveGreen, thick] (.4 ,-.1) -- (2.1, 1.6);
+        \draw[OliveGreen, thin, dashed] (2 , 2) -- (3.1, 4.2);
+        \draw[OliveGreen, thick] (1.9 , 1.3) -- (3.1, 3.7);
+        \draw[BrickRed, very thick] plot[id=x2] function {x**2/2};
+        \draw[MidnightBlue, thick, dashed] (1,.5) -- (1,-.2) node[below] {$(t_0, y_0)$};
+        \draw[MidnightBlue, thick, dashed] (2,1.5) -- (2,-.2) node[below] {$(t_1, y_1)$};
+        \draw[MidnightBlue, thick, dashed] (3,3.5) -- (3,-.2) node[below] {$(t_2, y_2)$};
+    \end{tikzpicture}
+    \caption{Schéma d'intégration d'Euler}
+    \label{fig:euler}
+\end{marginfigure}
+
+La figure~\ref{fig:euler} propose une représentation graphique de la fonction $x
+\mapsto x^2/2$ et de son approximation par la méthode d'Euler.
+
+\section{Lancer balistique}
+
+On se place dans un repère terrestre local $\left( O, \vec{x}, \vec{z} \right)$,
+où $z$ représente l'altitude d'un point à partir du niveau de la mer. On
+considère une boule de masse $m$ et de rayon $r$ lancée du point $x_0$, avec une
+vitesse initiale $v_0$. La boule est soumise à l'action de la gravité. On
+considère le champ gravitationnel uniforme, avec $g = 9,81\, m\cdot s^{-2}$.
+
+Le principe fondamental de la dynamique donne le système d'équations:
+
+\begin{equation}
+    \begin{cases}
+        \;\ddot{x}(t) =  -g\cdot\vec{z}\\
+        \;\dot{x}(0) =  v_0\\
+        \;x(0) =  x_0
+    \end{cases}
+    \label{eqn:ballistic}
+\end{equation}
+
+Ce système s'intègre simplement en un polynôme du second degré. On propose ici
+de résoudre ce système à l'aide de la méthode d'Euler.
+
+\begin{enumerate}
+    \item Télécharger, compiler et exécuter le code fourni. Tracer la
+        trajectoire produite dans le repère $\left( O, \vec{x}, \vec{z} \right)$
+        avec l'outil \texttt{gnuplot}.
+    \item Résoudre le problème de manière analytique. Superposer à la figure
+        précédente la représentation graphique de la solution analytique.
+    \item Exécuter le logiciel avec l'option \verb+--help+. Modifier ensuite le
+        pas d'intégration et analyser son influence sur la précision de la
+        trajectoire calculée par rapport à la solution analytique.
+    \item On souhaite rajouter l'influence des forces de frottement à l'air.
+        Dans le fichier \texttt{ballistic.c}, modifier la fonction
+        \texttt{ballistic\_derivate} pour prendre en compte cette force. \\La
+        force de frottement à l'air s'exerce en opposition au vecteur
+        vitesse. Son module s'exprime de la manière suivante:
+        \begin{equation}
+            F = \frac{1}{2}\cdot C_x \cdot \rho \cdot S \cdot V^{2}
+            \label{eqn:cx}
+        \end{equation}
+        Le coefficient de traînée $C_x$ est égal à $0,5$ dans le cas d'une
+        sphère. La surface de référence $S$ correspond à la surface d'un
+        disque de rayon $r$ (on définit ici $r$ tel que $S=0,1\,m^{2}$).
+        $\rho = 1,184\;kg\cdot m^{-3}$ est la masse volumique de l'air, que l'on
+        considérera ici indépendante de l'altitude.
+    \item Tracer les deux trajectoires balistiques, avec et sans frottement à
+        l'air.
+\end{enumerate}
+% plot 'output.txt' w l, -9.81/20000* x**2 + 0.981 * x  +100
+
+\section{Problème à deux corps}
+
+On considère le problème de deux corps soumis à leur interaction
+gravitationnelle. On rappelle la valeur de la constante universelle de
+gravitation $G=6,67384\cdot 10^{-11}\,m^3\cdot kg^{-1}\cdot s^{-2}$, pour
+le calcul de la force d'attraction:
+
+\begin{equation}
+    F = G\cdot\frac{m_1\cdot m_2}{r^2}
+    \label{eqn:g}
+\end{equation}
+
+En intégrant le principe fondamental de la dynamique, on souhaite tracer la
+trajectoire des deux corps.
+
+\begin{enumerate}
+    \item Écrire la méthode \texttt{twobody\_derivate} dans le fichier
+        \texttt{nbody.c}, qui sera appelée lors de l'intégration des deux
+        trajectoires.
+    \item Exécuter le logiciel avec l'option \verb+--problem twobody+ et
+        tracer les deux trajectoires. Expliquer et mesurer la dérive des
+        trajectoires.
+\end{enumerate}
+
+\section{Méthode de Runge-Kutta d'ordre 4}
+
+La méthode de Runge-Kutte d'ordre 4\footnote{La méthode étant d'ordre 4,
+l'erreur commise à chaque étape est de l'ordre de $h^5$ et l'erreur cumulée est
+de l'ordre de $h^4$.  } propose un schéma d'intégration basé sur une moyenne de
+pentes calculées au début, au milieu et à la fin de l'intervalle considéré:
+\begin{equation}
+    y_{n+1} = y_n + \frac{h}{6}\left( k_1 + 2k_2 + 2k_3 + k_4 \right)
+    \label{eqn:rk4}
+\end{equation}
+
+\begin{equation}
+    \begin{dcases}
+        \;k_1 = f\left(t_n,y_n\right)\\
+        \;k_2 = f\left( t_n+\frac{h}{2}, y_n + \frac{h}{2}\cdot k_1 \right)\\
+        \;k_3 = f\left( t_n+\frac{h}{2}, y_n + \frac{h}{2}\cdot k_2 \right)\\
+        \;k_4 = f\left( t_n + h, y_n + h\cdot k_3 \right)
+    \end{dcases}
+    \label{eqn:rk4_2}
+\end{equation}
+
+Le terme $k_1$ représente la pente au début de l'intervalle; $k_2$ est la pente
+au milieu de l'intervalle, calculée en utilisant $k_1$ pour trouver la valeur de
+$y$ au point $t_n + h/2$ par la méthode d'Euler. $k_3$ est aussi la pente au
+milieu de l'intervalle, calculée en utilisant cette fois $k_2$ pour calculer
+$y$. Enfin, $k_4$ est la pente à la fin de l'intervalle, avec la valeur de $y$
+calculée en utilisant $k_3$.
+
+\begin{enumerate}
+    \item Écrire la méthode \texttt{rk4} dans le fichier \texttt{integration.c}.
+    \item Comparer les méthodes d'Euler et de Runge-Kutta sur le problème des
+        deux corps.
+\end{enumerate}
+
+\section{Problème à quatre corps}
+
+On considère un problème à quatre corps soumis aux interactions
+gravitationnelles des uns par rapport aux autres.
+
+\begin{enumerate}
+    \item Écrire la méthode \texttt{fourbody\_derivate} à l'aide des pointeurs
+        \texttt{ps1}, \texttt{ps2} et \texttt{ps3} qui représentent les états
+        des trois autres corps.
+    \item Exécuter le logiciel avec l'option \verb+--problem fourbody+ puis
+        tracer les quatre trajectoires (cf.\ figure~\ref{fig:4body}.) Expliquer
+        le phénomène.
+\end{enumerate}
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}[xscale=0.1, yscale=0.06]
+        \draw[very thin,color=gray, dashed, step=10] (-40,-60) grid (50,60);
+        \draw[thin,BrickRed] plot[id=1body] function {'4body.txt'};
+        \draw[thin,MidnightBlue] plot[id=2body] function {'4body.txt' using 3:4};
+        \draw[thin,OliveGreen] plot[id=3body] function {'4body.txt' using 5:6};
+        \draw[thin,Orange] plot[id=4body] function {'4body.txt' using 7:8};
+    \end{tikzpicture}
+
+    \caption{Instabilités à la résolution d'un problème à quatre corps}
+    \label{fig:4body}
+\end{figure}
+\end{document}
