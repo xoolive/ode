@@ -1,6 +1,6 @@
 GCC    = gcc
 CFLAGS = -Iinclude -Wall
-EXEC   = exec
+EXEC   = ode
 
 SOURCES=src/ballistic.c src/integration.c src/main.c src/nbody.c src/vector2d.c
 OBJECTS=$(patsubst src/%.c, bin/%.o, $(SOURCES))
